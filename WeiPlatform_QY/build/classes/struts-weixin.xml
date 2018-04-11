@@ -1,0 +1,41 @@
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="wei_client" namespace="/" extends="struts-lang">
+		<interceptors>
+			<interceptor name="authorityInterceptor" class="com.yidatec.weixin.security.AuthorityInterceptor"></interceptor>
+			<interceptor-stack name="weixinStack">
+				<interceptor-ref name="authorityInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="weixinStack" />
+		
+		<action name="weixin" class="weixinAction">
+		    <result name="success">/admin/weixin/adviserDetail.jsp</result>
+		    <result name="order_success">/admin/weixin/order_success.jsp</result>
+		    <result name="success_mood">/admin/weixin/user_mood.jsp</result>
+		    <result name="chat_window">/admin/weixin/chat_window.jsp</result>
+		    <result name="history_window">/admin/weixin/history_window.jsp</result>
+		    <result name="service_success">/admin/weixin/serviceDetail.jsp</result>
+		    <result name="appraise_success">/admin/weixin/appraise_success.jsp</result>
+		    <result name="train">/admin/weixin/train.jsp</result>
+		    <result name="title_list">/admin/weixin/title_list.jsp</result>
+		    <result name="help_info_error">/admin/weixin/help_info_error.jsp</result>
+		    <result name="help_success">/admin/weixin/help.jsp</result>
+		    <result name="help_info_success">/admin/weixin/help_info.jsp</result>
+		    <interceptor-ref name="defaultStack" />
+			<interceptor-ref name="authority" />
+		</action>
+		
+		<action name="weixinUserMgr" class="weixinUserMgr">
+		    <interceptor-ref name="defaultStack" />
+			<interceptor-ref name="authority" />
+		</action>
+		
+		<action name="lang" class="com.yidatec.weixin.action.I18nAction" method="changeLang">
+			<result name="changelang">/admin/login.jsp</result>
+        </action> 
+	</package>	
+</struts>

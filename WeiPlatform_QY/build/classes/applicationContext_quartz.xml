@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:jee="http://www.springframework.org/schema/jee"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.0.xsd">
+
+        <!-- 定期删除缓存文件夹 -->
+        <bean id="clearTempFilesQuartz" class="com.yidatec.weixin.quartz.ClearTempFilesQuartz" /> 
+               
+        <bean id="clearTempFilesJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">            
+            <property name="targetObject" ref="clearTempFilesQuartz" />            
+            <property name="targetMethod" value="work" />
+        </bean>        
+        <bean id="clearTempFilesDoTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail" ref="clearTempFilesJobTask" />           
+            <property name="cronExpression" value="0 0 1 * * ?" />               
+        </bean>
+        
+        <!-- 定期分发任务队列 -->
+        <bean id="messageQuartz" class="com.yidatec.weixin.message.MessageQuartz" >
+        	<property name="messageDispatch" ref="messageDispatch" />
+	    	<property name="sessionRegistry" ref="sessionRegistry" />
+        </bean>
+               
+        <bean id="messageJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">            
+            <property name="targetObject" ref="messageQuartz" />            
+            <property name="targetMethod" value="work" />
+        </bean>        
+        <bean id="messageDoTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail" ref="messageJobTask" />           
+            <!-- <property name="cronExpression" value="0 */1 * * * ?" /> -->  
+            <property name="cronExpression" value="*/10 * * * * ?" />             
+        </bean>
+        
+        <!-- 定期更改公众号的全局唯一票据(access_token) -->
+        <bean id="loadAccessTokenQuartz" class="com.yidatec.weixin.quartz.LoadAccessTokenQuartz" /> 
+               
+        <bean id="loadAccessTokenJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">            
+            <property name="targetObject" ref="loadAccessTokenQuartz" />            
+            <property name="targetMethod" value="work" />
+        </bean>        
+        <bean id="loadAccessTokenDoTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail" ref="loadAccessTokenJobTask" />           
+            <property name="cronExpression" value="0 */10 * * * ?" />               
+        </bean>		
+
+		<!-- 定期关闭用户24小时内没有反馈的请求单 -->
+		<bean id="SendCloseMessageQuartz" class="com.yidatec.weixin.message.SendCloseMessageQuartz" >
+			<property name="sendCloseMessage" ref="sendCloseMessage" />
+		</bean>
+               
+        <bean id="SendCloseMessageJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">            
+            <property name="targetObject" ref="SendCloseMessageQuartz" />            
+            <property name="targetMethod" value="work" />
+        </bean>        
+        <bean id="SendCloseMessageDoTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail" ref="SendCloseMessageJobTask" />           
+            <property name="cronExpression" value="0 */10 * * * ?" />               
+        </bean>	
+        
+        <!-- 定期发送关闭提醒 -->
+		<bean id="SendCloseRemindQuartz" class="com.yidatec.weixin.quartz.SendCloseRemindQuartz" >
+			<property name="sendCloseRemind" ref="sendCloseRemind" />
+		</bean>
+               
+        <bean id="SendCloseRemindJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">            
+            <property name="targetObject" ref="SendCloseRemindQuartz" />            
+            <property name="targetMethod" value="work" />
+        </bean>  
+              
+        <bean id="SendCloseRemindDoTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail" ref="SendCloseRemindJobTask" />           
+            <property name="cronExpression" value="0 */1 * * * ?" />               
+        </bean>	
+        
+        <!-- 备份数据 -->
+<!--         <bean id="BackOldTaskQueueMessageDataQuartz" class="com.yidatec.weixin.quartz.BackOldTaskQueueMessageDataQuartz" >
+			<property name="backQueueMessage" ref="backQueueMessage" />
+		</bean>
+         <bean id="BackOldTaskQueueMessageDataJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">            
+            <property name="targetObject" ref="BackOldTaskQueueMessageDataQuartz" />            
+            <property name="targetMethod" value="work" />
+        </bean> 
+                <bean id="BackOldTaskQueueMessageDataDoTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail" ref="BackOldTaskQueueMessageDataJobTask" />           
+            <property name="cronExpression" value="0 */10 * * * ?" />               
+        </bean>	 -->
+        
+        
+        <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序 -->
+        <bean id="startQuertz" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+            <property name="triggers">
+                <list>     
+                   	<ref bean="clearTempFilesDoTime"/>    
+                   	<ref bean="messageDoTime"/>  
+                    <!-- <ref bean="loadAccessTokenDoTime"/> -->
+                    <ref bean="SendCloseMessageDoTime"/>
+                    <ref bean="SendCloseRemindDoTime"/>
+                <!--     <ref bean="BackOldTaskQueueMessageDataDoTime"/> -->
+                    
+               </list>
+            </property>
+        </bean>
+        
+        <!-- 常用的corn表达式   
+        	[秒] [分] [小时] [日] [月] [周] [年]
+			*隔5秒执行一次：*/5 * * * * ?
+			*隔1分钟执行一次：0 */1 * * * ?			
+			*隔1小时执行一次：0 0 */1 * * ?			
+			*23点执行一次：0 0 23 * * ?
+			*晨1点执行一次：0 0 1 * * ?
+			*月1号凌晨1点执行一次：0 0 1 1 * ?
+			*月最后一天23点执行一次：0 0 23 L * ?
+			*周星期天凌晨1点实行一次：0 0 1 ? * L
+			*在26分、29分、33分执行一次：0 26,29,33 * * * ?
+			*的0点、13点、18点、21点都执行一次：0 0 0,13,18,21 * * ?
+		-->		
+   
+</beans>

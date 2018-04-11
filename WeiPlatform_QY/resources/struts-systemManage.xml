@@ -1,0 +1,25 @@
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="wei_sysmgr" namespace="/" extends="struts-lang">
+		<!-- platformUserMgr -->
+		<action name="adminPlatformUserMgr" class="platformUserMgr">
+			<result name="platformuser_mgr">/admin/system_manage/platform_users_view.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="authority" />
+		</action>
+		<!-- roleAuthsMgr -->
+		<action name="adminRoleAuthsMgr" class="roleAuthsMgr">
+		    <result name="roleAuthsMgr">/admin/system_manage/user_role_overview.jsp</result>
+		    <interceptor-ref name="defaultStack" />
+			<interceptor-ref name="authority" />	
+		</action>
+		<!-- resourceMgr -->
+		<action name="adminResourceMgr" class="resourceMgr">
+			<result name="resource_mgr">/admin/system_manage/resource_mgr.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="authority" />
+		</action>		
+	</package>	
+</struts>

@@ -1,0 +1,16 @@
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="mzzq_adviserMgr" namespace="/" extends="struts-lang">		
+		<action name="adviserMgr" class="adviserMgr">
+			<result name="adviserMgr">/admin/advisory_manage/adviser_view.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="authority" />
+		</action>
+		<action name="region" class="region">
+		<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="authority" />
+		</action>
+	</package>	
+</struts>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans default-autowire="byName" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+   http://www.springframework.org/schema/aop 
+   http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+   http://www.springframework.org/schema/tx
+   http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+   http://www.springframework.org/schema/jee
+   http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+   http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+		
+	<!-- 以下配置Action、Services、Dao -->
+	<bean id="weixinDao" class="com.yidatec.weixin.dao.WeixinDao" scope="prototype" />
+	<bean id="weixinService" class="com.yidatec.weixin.service.WeixinService" />
+	<bean id="weixinAction" class="com.yidatec.weixin.action.WeixinAction" scope="prototype" />
+	
+	<bean id="weixinUserManageDao" class="com.yidatec.weixin.dao.WeixinUserManageDao" scope="prototype" />
+	<bean id="weixinUserManageService" class="com.yidatec.weixin.service.WeixinUserManageService" />
+	<bean id="weixinUserMgr" class="com.yidatec.weixin.action.WeixinUserManageAction" scope="prototype" />
+	
+	<bean id="messageDao" class="com.yidatec.weixin.message.MessageDao" />
+	<bean id="messageHandle" class="com.yidatec.weixin.message.MessageHandle" />
+	<bean id="messageDispatch" class="com.yidatec.weixin.message.MessageDispatch" />
+	<bean id="sendCloseMessage" class="com.yidatec.weixin.message.SendCloseMessage" />
+	<bean id="sendCloseRemind" class="com.yidatec.weixin.message.SendCloseRemind" />
+<!-- 	<bean id="backQueueMessage" class="com.yidatec.weixin.message.BackQueueMessage" /> -->
+	
+	<bean id="syncHrDao" class="com.yidatec.weixin.dao.SyncHrDao" scope="prototype" />
+	<bean id="syncHrService" class="com.yidatec.weixin.service.SyncHrService" />
+	<bean id="synchrdataaction" class="com.yidatec.weixin.action.SyncHrDataAction" scope="prototype" />
+</beans> 

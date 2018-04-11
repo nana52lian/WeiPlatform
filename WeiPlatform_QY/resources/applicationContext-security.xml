@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<b:beans default-autowire="byName" xmlns="http://www.springframework.org/schema/security"
+	xmlns:b="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/security 
+    http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+	
+	<!-- 不要过滤图片等静态资源 -->
+	<http pattern="/**/*.jpg" security="none" />		
+	<http pattern="/**/*.png" security="none" />
+	<http pattern="/**/*.gif" security="none" />
+	<http pattern="/**/*.css" security="none" />
+	<http pattern="/**/*.js" security="none" />
+	<http pattern="/**/*.wav" security="none" />
+	<http pattern="/**/*.mp3" security="none" />
+	<!-- 登录页面和忘记密码页面不过滤  -->
+	<!-- 客户端请求接口不过滤  -->
+	<http pattern="/index.jsp" security="none" />
+	<http pattern="/admin/login.jsp" security="none" />
+	<http pattern="/admin/weixin/adviserDetail.jsp" security="none" />
+	<http pattern="/admin/weixin/advisory_direction.jsp" security="none" />
+	<http pattern="/admin/weixin/feedback.jsp" security="none" />
+	<http pattern="/admin/weixin/order_success.jsp" security="none" />
+	<http pattern="/admin/weixin/user_guide.jsp" security="none" />
+	<http pattern="/admin/weixin/user_mood.jsp" security="none" />
+	<http pattern="/admin/weixin/appraise.jsp" security="none" />
+	<http pattern="/admin/weixin/appraise_success.jsp" security="none" />
+	<http pattern="/weixin!getServiceDetail" security="none"/>
+	<http pattern="/weixin!getHelpList" security="none"/>
+	<http pattern="/weixin!testService" security="none"/>
+	<http pattern="/weixin!getTwoLevelMenuList.action" security="none"/> 
+	
+	<http use-expressions="true" entry-point-ref="authenticationProcessingFilterEntryPoint">  
+        <logout logout-success-url="/admin/login.jsp" invalidate-session="true" delete-cookies="JSESSIONID"/>
+        <access-denied-handler error-page="/admin/accessDenied.jsp" />
+        <!-- 实现免登陆验证 -->  
+        <remember-me />
+        <session-management invalid-session-url="/admin/login.jsp" session-authentication-strategy-ref="sas"/>
+        <custom-filter ref="loginFilter" position="FORM_LOGIN_FILTER"  />  
+        <custom-filter ref="customFilter" before="FILTER_SECURITY_INTERCEPTOR"/>  
+        <custom-filter ref="concurrencyFilter" position="CONCURRENT_SESSION_FILTER" />
+    </http>
+    <!-- session 管理 -->
+    <b:bean id="sas" class="org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
+    	<b:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+    	<b:property name="maximumSessions" value="1" />
+  	</b:bean>
+    <!-- session 并发控制 -->  
+    <b:bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+    	<b:property name="sessionRegistry" ref="sessionRegistry" />
+    	<b:property name="expiredUrl" value="/admin/login.jsp" />
+  	</b:bean>
+    
+    <b:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+	
+	<!-- 登录验证器 -->  
+    <b:bean id="loginFilter" class="com.yidatec.weixin.security.CustomUsernamePasswordAuthenticationFilter">  
+        <!-- 处理登录的action -->  
+        <b:property name="filterProcessesUrl" value="/j_spring_security_check"></b:property>  
+        <!-- 验证成功后的处理-->  
+        <b:property name="authenticationSuccessHandler" ref="loginLogAuthenticationSuccessHandler"></b:property>  
+        <!-- 验证失败后的处理-->  
+        <b:property name="authenticationFailureHandler" ref="simpleUrlAuthenticationFailureHandler"></b:property>  
+        <b:property name="authenticationManager" ref="authenticationManager"></b:property>
+        <b:property name="sessionAuthenticationStrategy" ref="sas" />
+    </b:bean>  
+    <b:bean id="loginLogAuthenticationSuccessHandler"
+    	class="com.yidatec.weixin.security.CustomAuthenticationSuccessHandler">  
+        <b:property name="defaultTargetUrl" value="/admin/main.jsp"></b:property>  
+    </b:bean>  
+    <b:bean id="simpleUrlAuthenticationFailureHandler"  
+        class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">  
+        <!-- 可以配置相应的跳转方式。属性forwardToDestination为true采用forward false为sendRedirect -->  
+        <b:property name="defaultFailureUrl" value="/admin/login.jsp"></b:property>  
+    </b:bean>
+	
+	<!-- 
+		一个自定义的filter，必须包含
+		authenticationManager,
+		accessDecisionManager,
+		securityMetadataSource
+		三个属性。 
+	-->
+	<b:bean id="customFilter" class="com.yidatec.weixin.security.CustomFilterSecurityInterceptor">
+		<b:property name="authenticationManager" ref="authenticationManager"/>
+		<b:property name="accessDecisionManager" ref="customAccessDecisionManager"/>
+		<b:property name="securityMetadataSource" ref="customSecurityMetadataSource"/>
+	</b:bean>	
+
+	<!-- 注意能够为authentication-manager 设置alias别名 -->
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider user-service-ref="userDetailsManager">
+			<!--
+			<password-encoder ref="passwordEncoder">
+				<salt-source user-property="account" />
+			</password-encoder>
+			-->
+		</authentication-provider>
+	</authentication-manager>
+
+
+	<!-- 访问决策器，决定某个用户具有的角色，是否有足够的权限去访问某个资源。 -->
+	<b:bean id="customAccessDecisionManager" 
+		class="com.yidatec.weixin.security.CustomAccessDecisionManager">
+	</b:bean>
+
+	<!-- 资源源数据定义，将所有的资源和权限对应关系建立起来，即定义某一资源可以被哪些角色去访问。-->
+	<b:bean id="customSecurityMetadataSource"
+		class="com.yidatec.weixin.security.CustomInvocationSecurityMetadataSourceService">
+		<b:property name="securityDao" ref="securityDao" />
+	</b:bean>
+	
+	<!-- 未登录的切入点 -->  
+    <b:bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">  
+        <b:property name="loginFormUrl" value="/admin/login.jsp"></b:property>  
+    </b:bean>  
+	
+
+</b:beans>

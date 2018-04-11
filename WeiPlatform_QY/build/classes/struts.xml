@@ -1,0 +1,47 @@
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+   	<!-- 国际化 -->    
+    <constant name="struts.i18n.encoding" value="utf-8" />
+    <!-- 使用国际化 -->
+    <constant name="struts.i18n.reload" value="true" />
+    <!-- 设置是否支持动态方法调用，true为支持，false不支持. -->
+    <constant name="struts.enable.DynamicMethodInvocation" value="true" />
+    <!-- 
+		当struts的配置文件修改后,系统是否自动重新加载该文件,
+		默认值为false(生产环境下使用),开发阶段最好打开
+	-->  
+    <constant name="struts.configuration.xml.reload" value="true" /> 
+    <!-- 缓存静态页  -->
+    <constant name="struts.serve.static.browserCache" value="false" />
+    <!-- 关掉<s:text> 自动生成的table  -->    
+    <constant name="struts.ui.theme" value="simple" />
+    <!-- 调试模式在控制台打印异常 在不写try catch的时候  -->  
+    <constant name="struts.devMode" value="false" />
+    <!-- 该属性指定整合spring时，是否对bean进行缓存，值为true or false,默认为true -->   
+    <constant name="struts.objectFactory.spring.useClassCache" value="true" />
+    <!-- 10485760 == 10M 上传文件大小限制 -->
+	<constant name="struts.multipart.maxSize" value="10485760"/>
+	<!--
+	<constant name="struts.action.extension" value="action"></constant>
+    -->  
+    
+	<include file="struts-default.xml" />	
+	<include file="struts-lang.xml" />
+	<include file="struts-systemManage.xml" />
+	<include file="struts-weixin.xml" />
+	<include file="struts-article.xml" />
+	<include file="struts-seatManage.xml" />
+	
+		
+	<package name="wei_platform" namespace="/" extends="struts-default">		
+		<action name="statistics" class="com.yidatec.weixin.action.StatisticsAction">
+		</action>
+		<action name="uploadFile" class="com.yidatec.weixin.action.UploadAction">
+		</action>
+		<action name="synchrdataaction" class="com.yidatec.weixin.action.SyncHrDataAction">
+		</action>
+	</package>
+</struts>

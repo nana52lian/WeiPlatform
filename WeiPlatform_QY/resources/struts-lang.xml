@@ -1,0 +1,22 @@
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="struts-lang" namespace="/" extends="struts-default">
+	    <interceptors>
+			<!--权限拦截-->
+			<interceptor name="authority" class="com.yidatec.weixin.filter.LangInterceptor" />
+			
+			<!--权限拦截器栈-->
+			<interceptor-stack name="authorityStack">
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="authority" />
+			</interceptor-stack>
+		</interceptors>	
+		
+		<!--专用的jsp国际化action-->  
+	    <action name="totalfilter" class="com.yidatec.weixin.filter.TotalFilter">  
+	        <result name="url" >${url}</result>           
+	    </action> 
+	</package>	
+</struts>

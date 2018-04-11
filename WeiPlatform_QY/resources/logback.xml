@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For assistance related to logback-translator or configuration  -->
+<!-- files in general, please contact the logback user mailing list -->
+<!-- at http://www.qos.ch/mailman/listinfo/logback-user             -->
+<!--                                                                -->
+<!-- For professional support please see                            -->
+<!--    http://www.qos.ch/shop/products/professionalSupport         -->
+<!--                                                                -->
+<configuration>
+	<contextName>weixin_platform</contextName>
+	<appender name="overAll_Console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>[%contextName][%p][%d{yyyy-MM-dd HH:mm:ss}][%t][%C{3}.%M\(line:%L\)]:> %m%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="overAll_RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${wei.root}/WEB-INF/logs/wei.log</File>
+		<encoder>
+			<pattern>[%contextName][%p][%d{yyyy-MM-dd HH:mm:ss}][%t][%C{3}.%M\(line:%L\)]:> %m%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>wei.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>10</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>100MB</MaxFileSize>
+		</triggeringPolicy>
+	</appender>
+	<root level="INFO">
+		<appender-ref ref="overAll_Console" />
+		<appender-ref ref="overAll_RollingFile" />
+	</root>
+</configuration>
